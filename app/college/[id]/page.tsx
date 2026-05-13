@@ -30,11 +30,11 @@ type Post = {
     colleges: {
         id: string;
         name: string;
-    };
+    }[];
 
     categories: {
         name: string;
-    };
+    }[];
 };
 
 const anonymousNames = [
@@ -285,19 +285,13 @@ export default function CollegePage() {
                                                 <div className="flex items-center gap-2 text-sm text-zinc-500 mt-1">
 
                                                     <span>
-                                                        {
-                                                            post.categories
-                                                                ?.name
-                                                        }
+                                                       post.categories?.[0]?.name
                                                     </span>
 
                                                     <span>•</span>
 
                                                     <span>
-                                                        {
-                                                            post.colleges
-                                                                ?.name
-                                                        }
+                                                        post.colleges?.[0]?.name
                                                     </span>
 
                                                 </div>

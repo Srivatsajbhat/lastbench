@@ -29,11 +29,11 @@ type Post = {
     colleges: {
         id: string;
         name: string;
-    };
+    }[];
 
     categories: {
         name: string;
-    };
+    }[];
 
     trendingScore?: number;
 };
@@ -296,22 +296,18 @@ export default function TrendingPage() {
                                             <div className="flex items-center gap-2 text-sm text-zinc-500 mt-1">
 
                                                 <span>
-                                                    {
-                                                        post.categories
-                                                            ?.name
-                                                    }
+                                                   post.colleges?.[0]?.name
                                                 </span>
 
                                                 <span>•</span>
 
                                                 <Link
-                                                    href={`/college/${post.colleges?.id}`}
+                                                    href={`/college/${
+                                                        post.colleges?.[0]?.id
+                                                    }`}
                                                     className="hover:text-white transition"
                                                 >
-                                                    {
-                                                        post.colleges
-                                                            ?.name
-                                                    }
+                                                    post.colleges?.[0]?.name
                                                 </Link>
 
                                             </div>

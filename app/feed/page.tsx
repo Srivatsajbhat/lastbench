@@ -31,11 +31,11 @@ type Post = {
     colleges: {
         id: string;
         name: string;
-    };
+    }[];
 
     categories: {
         name: string;
-    };
+    }[];
 };
 
 const anonymousNames = [
@@ -336,7 +336,7 @@ export default function FeedPage() {
                                         <div className="mb-10">
 
                                             <p className="text-zinc-400 text-sm mb-4">
-                                                {post.categories?.name}
+                                                post.categories?.[0]?.name
                                             </p>
 
                                             <h2 className="text-4xl leading-relaxed font-semibold">
@@ -353,7 +353,7 @@ export default function FeedPage() {
                                                 </p>
 
                                                 <p className="text-zinc-500 text-sm mt-1">
-                                                    {post.colleges?.name}
+                                                    post.colleges?.[0]?.name
                                                 </p>
                                             </div>
 
@@ -393,22 +393,18 @@ export default function FeedPage() {
                                                 <div className="flex items-center gap-2 text-sm text-zinc-500 mt-1">
 
                                                     <span>
-                                                        {
-                                                            post.categories
-                                                                ?.name
-                                                        }
+                                                        post.categories?.[0]?.name
                                                     </span>
 
                                                     <span>•</span>
 
                                                     <Link
-                                                        href={`/college/${post.colleges?.id}`}
+                                                        href={`/college/${
+                                                            post.colleges?.[0]?.id
+                                                        }`}
                                                         className="hover:text-white transition"
                                                     >
-                                                        {
-                                                            post.colleges
-                                                                ?.name
-                                                        }
+                                                        post.categories?.[0]?.name
                                                     </Link>
 
                                                 </div>
