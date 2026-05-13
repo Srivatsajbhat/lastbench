@@ -256,7 +256,7 @@ export default function FeedPage() {
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center justify-end gap-3 max-w-[220px]">
 
                             <Link
                                 href="/trending"
