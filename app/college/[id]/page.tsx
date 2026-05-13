@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { formatDistanceToNow } from "date-fns";
 import AmbientBackground from "@/components/AmbientBackground";
-import { motion } from "framer-motion";
 
 type Comment = {
     id: string;
@@ -48,7 +48,11 @@ const anonymousNames = [
     "Anonymous Moon",
 ];
 
-export default function FeedPage() {
+export default function CollegePage() {
+    const params = useParams();
+
+    const collegeId = params.id as string;
+
     const [posts, setPosts] = useState<Post[]>([]);
     const [comments, setComments] = useState<Comment[]>([]);
 
@@ -61,44 +65,11 @@ export default function FeedPage() {
     >({});
 
     useEffect(() => {
-        fetchPosts();
-        fetchComments();
-
-        const postsChannel = supabase
-            .channel("posts-realtime")
-            .on(
-                "postgres_changes",
-                {
-                    event: "*",
-                    schema: "public",
-                    table: "posts",
-                },
-                () => {
-                    fetchPosts();
-                }
-            )
-            .subscribe();
-
-        const commentsChannel = supabase
-            .channel("comments-realtime")
-            .on(
-                "postgres_changes",
-                {
-                    event: "*",
-                    schema: "public",
-                    table: "comments",
-                },
-                () => {
-                    fetchComments();
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(postsChannel);
-            supabase.removeChannel(commentsChannel);
-        };
-    }, []);
+        if (collegeId) {
+            fetchPosts();
+            fetchComments();
+        }
+    }, [collegeId]);
 
     async function fetchPosts() {
         const { data, error } = await supabase
@@ -121,6 +92,7 @@ export default function FeedPage() {
           name
         )
       `)
+            .eq("college_id", collegeId)
             .order("created_at", {
                 ascending: false,
             });
@@ -223,15 +195,22 @@ export default function FeedPage() {
 
                         <div>
                             <h1 className="text-4xl font-bold">
-                                LastBench
+                                Campus Feed
                             </h1>
 
                             <p className="text-zinc-500 mt-2">
-                                For the thoughts that never reach the classroom.
+                                Thoughts from this classroom only.
                             </p>
                         </div>
 
                         <div className="flex items-center gap-3">
+
+                            <Link
+                                href="/feed"
+                                className="bg-zinc-900 border border-zinc-800 px-5 py-3 rounded-xl font-medium hover:border-zinc-700 transition"
+                            >
+                                Feed
+                            </Link>
 
                             <Link
                                 href="/trending"
@@ -262,24 +241,17 @@ export default function FeedPage() {
                         <div className="flex flex-col items-center justify-center text-center py-40">
 
                             <div className="text-6xl mb-6">
-                                🌙
+                                🎓
                             </div>
 
                             <h2 className="text-3xl font-semibold mb-4">
-                                No thoughts yet.
+                                No campus thoughts yet.
                             </h2>
 
                             <p className="text-zinc-500 max-w-md leading-relaxed mb-8">
-                                No thoughts have reached this classroom yet.
-                                Maybe yours will be the first.
+                                This classroom is still silent.
+                                Maybe you’ll start the conversation.
                             </p>
-
-                            <Link
-                                href="/post"
-                                className="bg-white text-black px-6 py-3 rounded-2xl font-medium hover:scale-105 transition"
-                            >
-                                Drop a Thought
-                            </Link>
 
                         </div>
                     ) : (
@@ -299,20 +271,8 @@ export default function FeedPage() {
                                         : postComments.slice(-2);
 
                                 return (
-                                    <motion.div
+                                    <div
                                         key={post.id}
-                                        initial={{
-                                            opacity: 0,
-                                            y: 20,
-                                        }}
-                                        animate={{
-                                            opacity: 1,
-                                            y: 0,
-                                        }}
-                                        transition={{
-                                            duration: 0.4,
-                                            delay: 0.05,
-                                        }}
                                         className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
                                     >
                                         <div className="flex items-center justify-between mb-4">
@@ -333,15 +293,12 @@ export default function FeedPage() {
 
                                                     <span>•</span>
 
-                                                    <Link
-                                                        href={`/college/${post.colleges?.id}`}
-                                                        className="hover:text-white transition"
-                                                    >
+                                                    <span>
                                                         {
                                                             post.colleges
                                                                 ?.name
                                                         }
-                                                    </Link>
+                                                    </span>
 
                                                 </div>
                                             </div>
@@ -538,7 +495,7 @@ export default function FeedPage() {
                                             </div>
 
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 );
                             })}
 
