@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { formatDistanceToNow } from "date-fns";
 import AmbientBackground from "@/components/AmbientBackground";
 import { motion } from "framer-motion";
+import html2canvas from "html2canvas";
 
 type Comment = {
     id: string;
@@ -59,6 +60,10 @@ export default function FeedPage() {
     const [commentInputs, setCommentInputs] = useState<
         Record<string, string>
     >({});
+    const shareRefs = useRef<
+        Record<string, HTMLDivElement | null>
+    >({});
+
 
     useEffect(() => {
         fetchPosts();
@@ -213,6 +218,26 @@ export default function FeedPage() {
         }
     }
 
+    async function sharePost(postId: string) {
+        const element = shareRefs.current[postId];
+
+        if (!element) return;
+
+        const canvas = await html2canvas(element, {
+            scale: 2,
+            backgroundColor: "#000000",
+        });
+
+        const image = canvas.toDataURL("image/png");
+
+        const link = document.createElement("a");
+
+        link.href = image;
+        link.download = "lastbench-confession.png";
+
+        link.click();
+    }
+
     return (
         <>
             <AmbientBackground />
@@ -298,6 +323,48 @@ export default function FeedPage() {
                                         ? postComments
                                         : postComments.slice(-2);
 
+                                const shareCard = (
+                                    <div
+                                        ref={(el) => {
+                                            shareRefs.current[post.id] = el;
+                                        }}
+                                        style={{
+                                            backgroundColor: "#000000",
+                                        }}
+                                        className="fixed left-[-9999px] top-0 w-[800px] text-white p-12 rounded-[40px]"
+                                    >
+                                        <div className="mb-10">
+
+                                            <p className="text-zinc-400 text-sm mb-4">
+                                                {post.categories?.name}
+                                            </p>
+
+                                            <h2 className="text-4xl leading-relaxed font-semibold">
+                                                {post.content}
+                                            </h2>
+
+                                        </div>
+
+                                        <div className="flex items-center justify-between">
+
+                                            <div>
+                                                <p className="text-zinc-300">
+                                                    {post.anonymous_name}
+                                                </p>
+
+                                                <p className="text-zinc-500 text-sm mt-1">
+                                                    {post.colleges?.name}
+                                                </p>
+                                            </div>
+
+                                            <div className="text-zinc-500">
+                                                LastBench
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                );
+
                                 return (
                                     <motion.div
                                         key={post.id}
@@ -315,6 +382,7 @@ export default function FeedPage() {
                                         }}
                                         className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
                                     >
+                                        {shareCard}
                                         <div className="flex items-center justify-between mb-4">
 
                                             <div>
@@ -403,6 +471,13 @@ export default function FeedPage() {
                                             >
                                                 ❤️ {post.felt}
                                             </button>
+
+                                            {/* <button
+                                                onClick={() => sharePost(post.id)}
+                                                className="hover:text-white transition"
+                                            >
+                                                📤 Share
+                                            </button> */}
 
                                         </div>
 
